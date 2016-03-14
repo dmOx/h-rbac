@@ -1,21 +1,20 @@
-<?php namespace Vendor\Package;
+<?php 
+namespace Dlnsk\HierarchicalRBAC;
 
 use Illuminate\Support\ServiceProvider;
 
 /**
- * A Laravel 5's package template.
+ * Based on native Laravel's abilities. Hierarchical RBAC with callbacks.
  *
- * @author: Rémi Collin 
+ * @author: Dmitry Pupinin
  */
-class PackageServiceProvider extends ServiceProvider {
+class HRBACServiceProvider extends ServiceProvider {
 
     /**
      * This will be used to register config & view in 
-     * your package namespace.
-     *
-     * --> Replace with your package name <--
+     * package namespace.
      */
-    protected $packageName = 'package';
+    protected $packageName = 'h-rbac';
 
     /**
      * Bootstrap the application services.
