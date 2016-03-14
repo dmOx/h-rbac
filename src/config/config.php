@@ -7,6 +7,6 @@
     | Describe what it does. 
     */
 
-    //'key' => 'value',
+    'rbacClass' => Dlnsk\HierarchicalRBAC\Authorization::class,
 
 ];

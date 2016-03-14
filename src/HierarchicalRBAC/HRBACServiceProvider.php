@@ -60,7 +60,11 @@ class HRBACServiceProvider extends ServiceProvider {
     {
         $this->mergeConfigFrom( __DIR__.'/../config/config.php', $this->packageName);
 
-        //
+        \Gate::before(function ($user, $ability, $arguments) {
+            $class = config($this->packageName.'.rbacClass');
+            $rbac = new $class();
+            return $rbac->checkPermission($user, $ability, $arguments);
+        });
     }
 
 }
