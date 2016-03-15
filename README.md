@@ -45,7 +45,8 @@ Add roles, permissions which you need and callbacks where it needs and have fun!
 ## Usage
 
 This module is wrapper for [authorization logic](https://laravel.com/docs/5.2/authorization#checking-abilities) and control access to resources of Laravel 5.1 and later. Except you shouldn't define abilities, they will define automatically.
-**Let's describe the minimum required ability of RBAC (in my opinion).**
+
+**Let's describe the minimum required ability of RBAC** (in my opinion).
 
 ### Roles and permissions
 
@@ -72,11 +73,12 @@ You can pass any number of parameters in callback as array.
 ### Permission's inheritance
 
 As you see callbacks is very useful. But what about site manager who may edit any posts? Create separate permission? But which of it we should check?
+
 Answer is use chained (inherited) permissions. Example:
 
 `editPost` -> `editPostInCategory` -> `editOwnPost`
 
-Each of this permission put in appropriate role but we always check the first (except in very rare cases):
+Each of this permission put in appropriate role but **we always check the first** (except in very rare cases):
 ``` php
 if (\Gate::can('editPost', $post)) {
 }
@@ -86,7 +88,9 @@ These permissions will be checked one by one until one of it will pass. In other
 ### The way RBAC is served
 
 Very popular is to use database for store roles and permissions. It flexible but hard to support. Managing of roles and permissions required backend (but stil available to change directly in DB). When we start to use inheritance for permissions it becomes too difficult for direct changing.
+
 In other case most projects aren't large. It need only few roles and permissions, so backend becomes economically inexpedient. Thus, I believe that file driven RBAC is enough for many projects. It's visual and simple for support.
+
 Storage of roles and permissions is on another level of logic, so DB support may be added later.
 
 ## Change log
