@@ -7,6 +7,6 @@
     | Describe what it does. 
     */
 
-    'rbacClass' => Dlnsk\HierarchicalRBAC\Authorization::class,
+    'rbacClass' => App\Classes\Authorization\AuthorizationClass::class,
 
 ];

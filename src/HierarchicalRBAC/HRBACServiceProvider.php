@@ -31,6 +31,7 @@ class HRBACServiceProvider extends ServiceProvider {
         // Publish your config
         $this->publishes([
             __DIR__.'/../config/config.php' => config_path($this->packageName.'.php'),
+            __DIR__.'/../config/exampleClass.php' => app_path('Classes/Authorization/AuthorizationClass.php'),
         ], 'config');
 
         //
