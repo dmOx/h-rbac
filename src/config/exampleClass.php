@@ -14,11 +14,16 @@ class AuthorizationClass extends Authorization
 	public function getPermissions() {
 		return [
 			'editPost' => [
-					'description' => 'Edit any post',
-					'next' => 'editOwnPost',
+					'description' => 'Edit any posts',   // optional property
+					'next' => 'editOwnPost',            // used for making chain (hierarchy) of permissions
 				],
 			'editOwnPost' => [
 					'description' => 'Edit own post',
+				],
+
+			//---------------
+			'deletePost' => [
+					'description' => 'Delete any posts',
 				],
 		];
 	}
@@ -27,6 +32,7 @@ class AuthorizationClass extends Authorization
 		return [
 			'manager' => [
 					'editPost',
+					'deletePost',
 				],
 			'user' => [
 					'editOwnPost',
