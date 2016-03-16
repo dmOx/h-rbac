@@ -42,7 +42,7 @@ with
 
 Add roles, permissions which you need and callbacks where it needs and have fun!
 
-## Usage
+## Overview
 
 This module is wrapper for [authorization logic](https://laravel.com/docs/5.2/authorization#checking-abilities) and control access to resources of Laravel 5.1 and later. Except you shouldn't define abilities, they will define automatically.
 
@@ -92,6 +92,107 @@ Very popular is to use database for store roles and permissions. It flexible but
 In other case most projects aren't large. It need only few roles and permissions, so backend becomes economically inexpedient. Thus, I believe that file driven RBAC is enough for many projects. It's visual and simple for support.
 
 Storage of roles and permissions is on another level of logic, so DB support may be added later.
+
+## Usage
+
+As I said `h-rbac` is wrapper for [authorization logic](https://laravel.com/docs/5.2/authorization#checking-abilities) of Laravel 5.1 and later. So, you can use any features of it.
+
+```php
+if (\Gate::allows('editPost', $post)) { // do something }
+...
+if (\Gate::denies('editPost', $post)) { abort(403); }
+...
+if (\Gate::forUser($user)->allows('editPost', $post)) { // do something }
+```
+
+From User model:
+
+```php
+if ($request->user()->can('editPost', $post)) { // do something }
+...
+if ($request->user()->cannot('editPost', $post)) { abort(403); }
+```
+
+In controller:
+
+```php
+$this->authorize('editPost', $post);
+```
+
+Within Blade
+
+	@can('editPost', $post)
+	    <!-- The Current User Can Update The Post -->
+	@else
+	    <!-- The Current User Can't Update The Post -->
+	@endcan
+
+Also in `h-rbac` we add directive `@role` which you can combine with `@else`
+
+
+	@role('user|manager')
+		<!-- The current user has any role -->
+	@endrole
+
+## Configuration
+
+When you publish configuration with `artisan` you'll have configuration class `app/Classes/Authorization/AuthorizationClass.php` where you should define permissions, roles and callbacks. You are free to move this file anywhere you want. Don't forget update `config/h-rbac.php` in this case.
+
+Structure of configuration class:
+
+```php
+<?php
+namespace App\Classes\Authorization;
+use Dlnsk\HierarchicalRBAC\Authorization;
+
+class AuthorizationClass extends Authorization
+{
+	public function getPermissions() {
+		return [
+			'editPost' => [
+					'description' => 'Edit any posts',  // optional property
+					'next' => 'editOwnPost',            // used for making chain (hierarchy) of permissions
+				],
+			'editOwnPost' => [
+					'description' => 'Edit own post',
+				],
+			'deletePost' => [
+					'description' => 'Delete any posts',
+				],
+		];
+	}
+
+	public function getRoles() {
+		return [
+			'manager' => [
+					'editPost',
+					'deletePost',
+				],
+			'user' => [
+					'editOwnPost',
+				],
+		];
+	}
+
+	////////////// Callbacks ///////////////
+	
+	public function editOwnPost($user, $post) {
+		$post = $this->getModel(\App\Post::class, $post);  // helper method for geting model
+
+		return $user->id === $post->user_id;
+	}
+
+}
+```
+
+You should add callback only if you need additional check for this permission. The name of callback should match the name of permission.
+
+We use next logic for checking permission: starting from the current permission, we check all of the following in chain one by one and:
+
+ - **allow** if role has a permission with no callback
+ - **allow** if role has a permission and callback return **true**
+ - **deny** if role hasn't any permission in chain
+ - **deny** if role has a permission but callback return **false** (in this case we don't check any remaining permission in chain)
 
 ## Change log
 
