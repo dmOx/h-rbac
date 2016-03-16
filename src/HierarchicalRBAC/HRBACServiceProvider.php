@@ -2,6 +2,7 @@
 namespace Dlnsk\HierarchicalRBAC;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\View\Compilers\BladeCompiler;
 
 /**
  * Based on native Laravel's abilities. Hierarchical RBAC with callbacks.
@@ -50,6 +51,15 @@ class HRBACServiceProvider extends ServiceProvider {
             $class = config($this->packageName.'.rbacClass');
             $rbac = new $class();
             return $rbac->checkPermission($user, $ability, $arguments);
+        });
+
+        $this->app->afterResolving('blade.compiler', function (BladeCompiler $bladeCompiler) {
+            $bladeCompiler->directive('role', function ($roles) {
+                return "<?php if(auth()->check() && in_array(auth()->user()->role, explode('|', $roles))): ?>";
+            });
+            $bladeCompiler->directive('endrole', function () {
+                return '<?php endif; ?>';
+            });
         });
     }
 
