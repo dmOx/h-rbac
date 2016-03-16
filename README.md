@@ -185,7 +185,7 @@ class AuthorizationClass extends Authorization
 }
 ```
 
-You should add callback only if you need additional check for this permission. The name of callback should match the name of permission.
+You should add callback only if you need additional check for this permission. **The name of callback should be camelcased name of permission.**
 
 We use next logic for checking permission: starting from the current permission, we check all of the following in chain one by one and:
 
