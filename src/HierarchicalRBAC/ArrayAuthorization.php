@@ -13,6 +13,21 @@ class ArrayAuthorization
 		return [];
 	}
 
+	private function testUsingUserMethod($user, $initial_ability, $current_ability, $arguments) {
+		$methods = get_class_methods($this);
+		$method = camel_case($current_ability);
+		if (in_array($method, $methods)) {
+			// Преобразуем массив в единичный элемент если он содержит один элемент
+			// или это ассоциативный массив с любым кол-вом элементов
+			if (!empty($arguments)) {
+				$arg = (count($arguments) > 1 or array_keys($arguments)[0] !== 0) ? $arguments : last($arguments);
+			} else {
+				$arg = null;
+			}
+			return $this->$method($user, $arg, $initial_ability) ? true : false;
+		}
+		return true;
+	}
 
 	/**
 	 * Checking permission for choosed user
@@ -21,7 +36,6 @@ class ArrayAuthorization
 	 */
 	public function checkPermission($user, $ability, $arguments)
 	{
-		\Debugbar::info($user->id.' - '.$ability);
 		if ($user->role === 'admin') {
 			return true;
 		}
@@ -31,7 +45,6 @@ class ArrayAuthorization
 		if (!isset($roles[$user->role])) {
 			return null;
 		}
-		\Debugbar::info('Роль опознана');
 
 		// Ищем разрешение для данной роли среди наследников текущего разрешения
 		$role = $roles[$user->role];
@@ -42,31 +55,25 @@ class ArrayAuthorization
 		// Callback оригинального не вызывается.
 		if (in_array($current, $role) and isset($permissions[$current]['equal'])) {
 			$current = $permissions[$current]['equal'];
-			\Debugbar::info('Разрешение равно '.$current);
-		}
-		while (!in_array($current, $role) and isset($permissions[$current]['next'])) {
-			$current = $permissions[$current]['next'];
-			\Debugbar::info($current);
-		}
-		if (!in_array($current, $role)) {
-			// Ни одного подходящего разрешения небыло найдено
-			\Debugbar::info('Разрешение '.$current.' не подходящее');
-			return null;
 		}
 
-		$methods = get_class_methods($this);
-		$method = camel_case($current);
-		if (in_array($method, $methods)) {
-			// Преобразуем массив в единичный элемент если он содержит один элемент
-			// или это ассоциативный массив с любым кол-вом элементов
-			if (!empty($arguments)) {
-				$arg = (count($arguments) > 1 or array_keys($arguments)[0] !== 0) ? $arguments : last($arguments);
-			} else {
-				$arg = null;
+		$i = 0;
+		$suitable = false;
+		while (true) {
+			if ($i++ > 100) {
+				throw new \Exception("Seems like permission '{$ability}' is in infinite loop");
 			}
-			return $this->$method($user, $arg, $ability) ? true : null;
+
+			if (in_array($current, $role)) {
+				$suitable = $suitable || $this->testUsingUserMethod($user, $ability, $current, $arguments);
+			}
+			if (isset($permissions[$current]['next']) and !$suitable) {
+				$current = $permissions[$current]['next'];
+			} else {
+				return $suitable ? true : null;
+			}
 		}
-		return true;
+		return null;
 	}
 
 
