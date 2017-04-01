@@ -1,5 +1,5 @@
 {
-    "name": "dlnsk/h-rbac",
+    "name": "dmOx/h-rbac",
     "description": "Based on native Laravel's abilities. Hierarchical RBAC with callbacks.",
     "license": "MIT",
     "keywords": ["laravel", "rbac", "hierarchical", "ability", "role", "permission"],
